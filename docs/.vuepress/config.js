@@ -24,7 +24,7 @@ module.exports = {
   markdown: {
     lineNumbers: true // 代码行号
   },
-  // base: '/blogs/',
+  // base: '/blog/',
   themeConfig: {
     repo: 'zeerain/blog',
     // 假如文档不是放在仓库的根目录下：
