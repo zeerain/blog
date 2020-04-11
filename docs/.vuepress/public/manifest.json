@@ -1,0 +1,15 @@
+{
+  "name": "zeerain",
+  "short_name": "哆啦A梦",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#429fe3",
+  "description": "哆啦A梦文档、博客。",
+  "icons": [
+    {
+      "src": "/A.jpeg",
+      "type": "image/jpeg",
+      "sizes": "256x256"
+    }
+  ]
+}
