@@ -7,7 +7,7 @@
     "docs:build": "vuepress build docs",
     "deploy": "bash deploy.sh"
   },
-  "repository": "git@github.com:zeerain/blogs.git",
+  "repository": "git@github.com:zeerain/blog.git",
   "author": "zeerain <zhaorui125@qq.com>",
   "license": "MIT",
   "devDependencies": {

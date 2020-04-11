@@ -26,7 +26,7 @@ module.exports = {
   },
   // base: '/blogs/',
   themeConfig: {
-    repo: 'zeerain/blogs',
+    repo: 'zeerain/blog',
     // 假如文档不是放在仓库的根目录下：
     docsDir: 'docs',
     editLinks: true,
