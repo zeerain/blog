@@ -15,7 +15,7 @@ module.exports = {
       href: '/manifest.json'
     }]
   ],
-  plugins: pluginConf,
+  // plugins: pluginConf,
   locales: {
     '/': {
       lang: 'zh-CN'
