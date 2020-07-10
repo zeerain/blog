@@ -378,6 +378,129 @@ let,const定义的变量，不是绑定在window下。
 
 ## 类型判断，`typeof`和`instanceof`的区别
 
+## 手写系列合集速查
+
+```js
+// 1、new实现
+function aNew(fn) {
+  if (typeof fn !== 'function') {
+    throw Error('not a function')
+  }
+  let res = {}
+  if (fn.prototype !== null) {
+    res.__proto__ = fn.prototype
+  }
+  let ret = fn.apply(res, [...arguments].slice(1))
+  if ((typeof ret === 'function' || typeof ret === 'object') && ret !== null) {
+    return ret;
+  }
+  return res
+}
+
+// 2、call实现
+Function.prototype.call2 = function (context = window) {
+  if (typeof this !== 'function') {
+    throw Error('XXXX')
+  }
+  context.fn = this
+  let args = [...arguments].slice(1)
+  let res = context.fn(...args)
+  delete context.fn
+  return res
+}
+
+// 3、apply实现
+Function.prototype.apply2 = function(context = window) {
+  if (typeof this !== 'function') {
+    throw Error('xxx')
+  }
+  context.fn = this
+  let res
+  if (arguments[1]) {
+    res = context.fn(...arguments[1])
+  } else {
+    res = context.fn()
+  }
+  delete context.fn
+  return res
+}
+
+// 4、bind实现
+Function.prototype.bind2 = function(context) {
+  if (typeof this !== 'function') {
+    throw Error('xxxx')
+  }
+  let self = this
+  let args = [...arguments].slice(1)
+  let fNOOP = function() {}
+  let bindFn = function() {
+    let bindArgs = [...arguments]
+    return self.apply(this instanceof fNOOP ? this : context, args.concat(bindArgs))
+  }
+
+  fNOOP.prototype = this.prototype
+  bindFn.prototype = new fNOOP()
+
+  return bindFn;
+}
+
+// 5、防抖函数
+function debunce(fn, wait) {
+  let timeout;
+
+  return function() {
+    let context = this;
+    let args = [...arguments];
+    clearTimeout(timeout)
+    timeout = setTimeout(function(){
+      fn.apply(context, args)
+    }, wait)
+  }
+}
+
+// 6、节流函数
+function throttle(fn, wait) {
+  let previous = 0;
+
+  return function () {
+    let now = +new Date();
+    let context = this;
+    let args = [...arguments];
+    if (now - previous > wait) {
+      fn.apply(context, args)
+      previous = now;
+    }
+  }
+}
+
+// 7、柯里化函数
+function curry(fn, args) {
+  let length = fn.length;
+  args = args || [];
+
+  return function(){
+    let _args = args.slice(0);
+    for (let i = 0; i < arguments.length; i++) {
+      _args.push(arguments[i])
+    }
+    if (_args.length < length) {
+      return curry.call(this, fn, _args)
+    } else {
+      return fn.apply(this, _args)
+    }
+  }
+}
+// 使用演示
+var fn = curry(function(a, b, c) {
+  console.log([a, b, c]);
+});
+
+fn("a", "b", "c") // ["a", "b", "c"]
+fn("a", "b")("c") // ["a", "b", "c"]
+fn("a")("b")("c") // ["a", "b", "c"]
+fn("a")("b", "c") // ["a", "b", "c"]
+```
+
 ## new做了那几件事，如何手写一个new
 
 1. 它创建了一个全新的对象。
@@ -395,7 +518,7 @@ let,const定义的变量，不是绑定在window下。
     if (fn.prototype !== null) {
         res.__proto__ = fn.prototype
     }
-    let ret = fn.apply(res, [...arguments].slice.call(1))
+    let ret = fn.apply(res, [...arguments].slice(1))
     if ((typeof ret === 'object' || typeof ret === 'function') && ret !== null) {
         return ret;
     }
@@ -463,20 +586,20 @@ bind方法 会创建一个新函数。当这个新函数被调用时，bind() �
 ```js
 Function.prototype.bind2 = function (context) {
   if (typeof this !== 'function') {
-    throw new Error('not a function')
+    throw Error('not a function')
   }
-  var self = this
-  var args = Array.prototype.slice.call(arguments, 1)
-  var fNOOP = function () {}
-  var bindFn = function () {
-    var bindArgs = Array.prototype.slice.call(arguments)
-    self.apply(this instanceof fNOOP ? this : context, args.concat(bindArgs))
+  let self = this;
+  let args = [...arguments].slice(1)
+  let fNOOP = function() {}
+  let bindFn = function() {
+    let bindArgs = [...arguments]
+    return self.apply(this instanceof fNOOP ? this : context, args.concat(bindArgs))
   }
 
   fNOOP.prototype = this.prototype
   bindFn.prototype = new fNOOP()
 
-  return bindFn
+  return bindFn;
 }
 ```
 
@@ -485,6 +608,22 @@ Function.prototype.bind2 = function (context) {
 你尽管触发事件，但是我一定在事件触发 n 秒后才执行，如果你在一个事件触发的 n 秒内又触发了这个事件，那我就以新的事件的时间为准，n 秒后才执行
 
 总之，就是要等你触发完事件 n 秒内不再触发事件，我才执行
+
+
+```js
+// 第三版代码  注意event对象  够用版
+function debunce (func, wait) {
+  var timeout;
+  return function () {
+    var context = this
+    var args = [...arguments]
+    clearTimeout(timeout)
+    timeout = setTimeout (function () {
+      func.apply(context, args)
+    }, wait)
+  }
+}
+```
 
 最终版如下
 
@@ -552,20 +691,7 @@ function debunce (func, wait) {
 }
 ```
 
-```js
-// 第三版代码  注意event对象
-function debunce (func, wait) {
-  var timeout;
-  return function () {
-    var context = this
-    var args = Array.prototype.slice.call(arguments)
-    clearTimeout(timeout)
-    timeout = setTimeout (function () {
-      func.apply(context, args)
-    }, wait)
-  }
-}
-```
+
 
 ## 节流是啥，如何实现
 
@@ -588,19 +714,18 @@ scroll 事件本身会触发页面的重新渲染，同时 scroll 事件的 hand
 看了这个表述，是不是感觉已经可以写出代码了…… 让我们来写第一版的代码：
 
 ```js
-function throttle(func, wait) {
-    var context, args;
-    var previous = 0;
-
-    return function() {
-        var now = +new Date();
-        context = this;
-        args = arguments;
-        if (now - previous > wait) {
-            func.apply(context, args);
-            previous = now;
-        }
+function throttle(fn, wait) {
+  let previous = 0;
+  
+  return function() {
+    let now = +new Date();
+    let context = this;
+    let args = [...arguments];
+    if (now - previous > wait) {
+        fn.apply(context, args);
+        previous = now;
     }
+  }
 }
 
 // 使用
@@ -704,23 +829,21 @@ p.then(function(x){console.log(x)})
 
 ```js
   function curry(fn, args) {
-      var length = fn.length;
-      args = args || [];
-      return function() {
-          var _args = args.slice(0);
-          var arg, i;
-          for (i = 0; i < arguments.length; i++) {
-              arg = arguments[i];
-              _args.push(arg);
-          }
-          if (_args.length < length) {
-              return curry.call(this, fn, _args);
-          } else {
-              return fn.apply(this, _args);
-          }
-      }
-  }
+    let length = fn.length;
+    args = args || [];
 
+    return function(){
+      let _args = args.slice(0);
+      for (let i = 0; i < arguments.length; i++) {
+        _args.push(arguments[i])
+      }
+      if (_args.length < length) {
+        return curry.call(this, fn, _args)
+      } else {
+        return fn.apply(this, _args)
+      }
+    }
+  }
   var fn = curry(function(a, b, c) {
       console.log([a, b, c]);
   });

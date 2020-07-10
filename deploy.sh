@@ -13,11 +13,13 @@ cd docs/.vuepress/dist
 # 如果是发布到自定义域名
 echo 'blogs.zeerain.cn' > CNAME
 if [ -z "$GITHUB_TOKEN" ]; then
+  git config --global user.name "zeerain"
+  git config --global user.email "zhaorui125@qq.com"
   msg='deploy'
   githubUrl=git@github.com:zeerain/blog.git
 else
   msg='来自github action的自动部署'
-  githubUrl=https://xugaoyi:${GITHUB_TOKEN}@github.com/zeerain/blog.git
+  githubUrl=https://zeerain:${GITHUB_TOKEN}@github.com/zeerain/blog.git
   git config --global user.name "zeerain"
   git config --global user.email "zhaorui125@qq.com"
 fi
